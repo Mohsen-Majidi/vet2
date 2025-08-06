@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تست دیباگ مراحل</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .debug-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+        button { padding: 10px 20px; margin: 5px; }
+        .form--step { 
+            border: 2px solid #ddd; 
+            margin: 10px 0; 
+            padding: 15px; 
+            display: none; 
+        }
+        .form--step.current { 
+            display: block; 
+            border-color: #007cba; 
+            background-color: #f0f8ff; 
+        }
+        .step-info { 
+            background: #f5f5f5; 
+            padding: 10px; 
+            margin: 5px 0; 
+            font-family: monospace; 
+        }
+    </style>
+</head>
+<body>
+    <h1>تست دیباگ مراحل</h1>
+    
+    <div class="debug-section">
+        <h3>وضعیت فعلی مراحل</h3>
+        <button onclick="checkStepState()">بررسی وضعیت مراحل</button>
+        <button onclick="fixStepState()">تصحیح وضعیت مراحل</button>
+        <button onclick="showAllSteps()">نمایش همه مراحل</button>
+        <div id="step-state-result"></div>
+    </div>
+
+    <div class="debug-section">
+        <h3>شبیه‌سازی مراحل</h3>
+        <div class="form--step current" data-step="0">
+            <h4>مرحله 0 - انتخاب نوع حیوان</h4>
+            <div class="step-info">data-step: 0, class: form--step current</div>
+            <p>این مرحله اول است</p>
+        </div>
+        
+        <div class="form--step" data-step="1">
+            <h4>مرحله 1 - اطلاعات سگ</h4>
+            <div class="step-info">data-step: 1, class: form--step</div>
+            <p>مرحله اطلاعات سگ</p>
+        </div>
+        
+        <div class="form--step" data-step="2">
+            <h4>مرحله 2 - اطلاعات گربه</h4>
+            <div class="step-info">data-step: 2, class: form--step</div>
+            <p>مرحله اطلاعات گربه</p>
+        </div>
+        
+        <div class="form--step" data-step="3">
+            <h4>مرحله 3 - خدمات</h4>
+            <div class="step-info">data-step: 3, class: form--step</div>
+            <p>انتخاب خدمات</p>
+        </div>
+        
+        <div class="form--step" data-step="4">
+            <h4>مرحله 4 - تاریخ</h4>
+            <div class="step-info">data-step: 4, class: form--step</div>
+            <p>انتخاب تاریخ</p>
+        </div>
+        
+        <div class="form--step" data-step="5">
+            <h4>مرحله 5 - اطلاعات شخصی</h4>
+            <div class="step-info">data-step: 5, class: form--step</div>
+            <p>اطلاعات شخصی</p>
+        </div>
+        
+        <div class="form--step" data-step="6">
+            <h4>مرحله 6 - لاگین</h4>
+            <div class="step-info">data-step: 6, class: form--step</div>
+            <p>مرحله لاگین</p>
+        </div>
+        
+        <div class="form--step" data-step="7">
+            <h4>مرحله 7 - آدرس</h4>
+            <div class="step-info">data-step: 7, class: form--step</div>
+            <p>انتخاب آدرس</p>
+        </div>
+        
+        <div class="form--step" data-step="8">
+            <h4>مرحله 8 - خلاصه</h4>
+            <div class="step-info">data-step: 8, class: form--step</div>
+            <p>خلاصه سفارش</p>
+        </div>
+        
+        <div class="form--step" data-step="9">
+            <h4>مرحله 9 - تکمیل</h4>
+            <div class="step-info">data-step: 9, class: form--step</div>
+            <p>تکمیل سفارش</p>
+        </div>
+    </div>
+
+    <div class="debug-section">
+        <h3>کنترل‌های ناوبری</h3>
+        <button id="next-step-btn">مرحله بعد</button>
+        <button id="prev-step-btn">مرحله قبل</button>
+        <div id="navigation-result"></div>
+    </div>
+
+    <script>
+        // Mock functions from main.js
+        let formSteps = Array.from(document.querySelectorAll('.form--step'));
+        let mainStep = 0;
+
+        // Mock checkAndFixStepState function
+        function checkAndFixStepState() {
+            const currentStep = document.querySelector('.form--step.current');
+            const allSteps = document.querySelectorAll('.form--step');
+            
+            const result = {
+                currentStep: currentStep ? currentStep.dataset.step : 'none',
+                totalSteps: allSteps.length,
+                steps: Array.from(allSteps).map(s => ({ 
+                    step: s.dataset.step, 
+                    current: s.classList.contains('current'),
+                    visible: s.style.display !== 'none'
+                }))
+            };
+            
+            console.log('Checking step state:', result);
+            
+            if (!currentStep && allSteps.length > 0) {
+                console.log('No current step found, setting first step as current');
+                allSteps[0].classList.add('current');
+                return allSteps[0];
+            }
+            
+            return currentStep;
+        }
+
+        // Mock step navigation
+        function stepNavigationHandle(currentStep, currentStepIndex, direction) {
+            console.log('Navigation:', { currentStepIndex, direction });
+            
+            if (direction === "next" && currentStepIndex + 1 >= formSteps.length) {
+                console.log('Already at last step');
+                return;
+            }
+            if (direction === "prev" && currentStepIndex - 1 < 0) {
+                console.log('Already at first step');
+                return;
+            }
+
+            const targetIndex = direction === "next" ? currentStepIndex + 1 : currentStepIndex - 1;
+            toStep(currentStepIndex, targetIndex, direction);
+        }
+
+        function toStep(from, to, direction) {
+            const currentStep = document.querySelector(`.form--step[data-step="${from}"]`);
+            const nextStep = document.querySelector(`.form--step[data-step="${to}"]`);
+
+            if (currentStep && nextStep) {
+                currentStep.classList.remove('current');
+                nextStep.classList.add('current');
+                mainStep = to;
+                
+                console.log(`Navigated from step ${from} to step ${to}`);
+                document.getElementById('navigation-result').innerHTML = 
+                    `<span class="success">✅ از مرحله ${from} به مرحله ${to} رفتیم</span>`;
+            } else {
+                console.error('Step elements not found:', { from, to, currentStep, nextStep });
+                document.getElementById('navigation-result').innerHTML = 
+                    `<span class="error">❌ خطا در پیدا کردن مراحل</span>`;
+            }
+        }
+
+        // Debug functions
+        function checkStepState() {
+            const result = checkAndFixStepState();
+            const allSteps = document.querySelectorAll('.form--step');
+            
+            let html = '<div class="step-info">';
+            html += `<strong>وضعیت فعلی:</strong><br>`;
+            html += `مرحله فعلی: ${result ? result.dataset.step : 'هیچ‌کدام'}<br>`;
+            html += `تعداد کل مراحل: ${allSteps.length}<br><br>`;
+            
+            html += `<strong>جزئیات مراحل:</strong><br>`;
+            allSteps.forEach(step => {
+                const isCurrent = step.classList.contains('current');
+                const isVisible = step.style.display !== 'none';
+                html += `مرحله ${step.dataset.step}: ${isCurrent ? 'فعلی' : 'غیرفعلی'} | ${isVisible ? 'مرئی' : 'مخفی'}<br>`;
+            });
+            html += '</div>';
+            
+            document.getElementById('step-state-result').innerHTML = html;
+        }
+
+        function fixStepState() {
+            const result = checkAndFixStepState();
+            if (result) {
+                document.getElementById('step-state-result').innerHTML = 
+                    `<span class="success">✅ وضعیت مراحل تصحیح شد. مرحله فعلی: ${result.dataset.step}</span>`;
+            } else {
+                document.getElementById('step-state-result').innerHTML = 
+                    `<span class="error">❌ خطا در تصحیح وضعیت مراحل</span>`;
+            }
+        }
+
+        function showAllSteps() {
+            const allSteps = document.querySelectorAll('.form--step');
+            allSteps.forEach(step => {
+                step.style.display = 'block';
+            });
+            document.getElementById('step-state-result').innerHTML = 
+                `<span class="info">ℹ️ همه مراحل نمایش داده شدند</span>`;
+        }
+
+        // Set up navigation buttons
+        document.getElementById('next-step-btn').addEventListener('click', () => {
+            const currentStep = checkAndFixStepState();
+            if (!currentStep) {
+                document.getElementById('navigation-result').innerHTML = 
+                    `<span class="error">❌ هیچ مرحله‌ای پیدا نشد</span>`;
+                return;
+            }
+            const stepIndex = parseInt(currentStep.dataset.step);
+            stepNavigationHandle(currentStep, stepIndex, 'next');
+        });
+
+        document.getElementById('prev-step-btn').addEventListener('click', () => {
+            const currentStep = checkAndFixStepState();
+            if (!currentStep) {
+                document.getElementById('navigation-result').innerHTML = 
+                    `<span class="error">❌ هیچ مرحله‌ای پیدا نشد</span>`;
+                return;
+            }
+            const stepIndex = parseInt(currentStep.dataset.step);
+            stepNavigationHandle(currentStep, stepIndex, 'prev');
+        });
+
+        // Initialize on load
+        window.addEventListener('load', () => {
+            console.log('Debug page loaded');
+            checkStepState();
+        });
+    </script>
+</body>
+</html> 

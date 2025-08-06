@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تست دکمه‌های ناوبری</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .step {
+            padding: 15px;
+            margin: 10px 0;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            display: none;
+        }
+        .step.current {
+            display: block;
+            border-color: #3498db;
+            background-color: #f8f9ff;
+        }
+        .step-0 {
+            background-color: #fff3cd;
+            border-color: #ffc107;
+        }
+        .step-1 {
+            background-color: #d1ecf1;
+            border-color: #17a2b8;
+        }
+        .step-2 {
+            background-color: #d4edda;
+            border-color: #28a745;
+        }
+        .step-3 {
+            background-color: #f8d7da;
+            border-color: #dc3545;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        button:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            background-color: #e9ecef;
+        }
+        .debug {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>تست دکمه‌های ناوبری</h1>
+        
+        <div class="status" id="status">
+            وضعیت: در مرحله 0
+        </div>
+        
+        <div class="step step-0 current" data-step="0">
+            <h3>مرحله 0 - انتخاب نوع حیوان</h3>
+            <p>این مرحله اول است.</p>
+            <input type="radio" name="pet-type" value="dog" id="dog-radio">
+            <label for="dog-radio">سگ</label>
+            <input type="radio" name="pet-type" value="cat" id="cat-radio">
+            <label for="cat-radio">گربه</label>
+        </div>
+        
+        <div class="step step-1" data-step="1">
+            <h3>مرحله 1 - اطلاعات سگ</h3>
+            <p>این مرحله برای سگ است.</p>
+            <input type="text" placeholder="نام سگ" />
+        </div>
+        
+        <div class="step step-2" data-step="2">
+            <h3>مرحله 2 - اطلاعات گربه</h3>
+            <p>این مرحله برای گربه است.</p>
+            <input type="text" placeholder="نام گربه" />
+        </div>
+        
+        <div class="step step-3" data-step="3">
+            <h3>مرحله 3 - اطلاعات اضافی</h3>
+            <p>این مرحله آخر است.</p>
+            <input type="text" placeholder="اطلاعات اضافی" />
+        </div>
+        
+        <div class="navigation-buttons">
+            <button id="prev-btn" onclick="goPrev()">مرحله قبل</button>
+            <button id="next-btn" onclick="goNext()">مرحله بعد</button>
+        </div>
+        
+        <div class="debug" id="debug">
+            <strong>اطلاعات دیباگ:</strong><br>
+            <span id="current-step">مرحله فعلی: 0</span><br>
+            <span id="step-count">تعداد مراحل: 4</span><br>
+            <span id="can-go-next">می‌توان به مرحله بعد رفت: true</span><br>
+            <span id="can-go-prev">می‌توان به مرحله قبل رفت: false</span>
+        </div>
+    </div>
+
+    <script>
+        let currentStepIndex = 0;
+        const steps = document.querySelectorAll('.step');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        
+        // شبیه‌سازی متغیرهای سراسری
+        window.formSteps = steps;
+        window.main = document.querySelector('.container');
+        window.dogRadio = document.getElementById('dog-radio');
+        
+        // تابع toStep ساده
+        function toStep(from, to, direction) {
+            console.log(`toStep called: from ${from} to ${to}, direction: ${direction}`);
+            
+            const currentStep = document.querySelector(`.step[data-step="${from}"]`);
+            const nextStep = document.querySelector(`.step[data-step="${to}"]`);
+            
+            if (!currentStep) {
+                console.error(`Step ${from} not found`);
+                return;
+            }
+            
+            if (!nextStep) {
+                console.error(`Step ${to} not found`);
+                return;
+            }
+            
+            // حذف کلاس current از مرحله فعلی
+            currentStep.classList.remove('current');
+            
+            // اضافه کردن کلاس current به مرحله جدید
+            nextStep.classList.add('current');
+            
+            // به‌روزرسانی شاخص فعلی
+            currentStepIndex = to;
+            
+            console.log(`Successfully navigated from step ${from} to step ${to}`);
+            updateStatus();
+        }
+        
+        // تابع stepNavigationHandle ساده
+        function stepNavigationHandle(currentStep, currentStepIndex, direction) {
+            console.log(`stepNavigationHandle called: currentStepIndex=${currentStepIndex}, direction=${direction}`);
+            
+            if (direction === "next" && currentStepIndex + 1 >= steps.length) {
+                console.log('Reached last step, cannot go next');
+                return;
+            }
+            
+            if (direction === "prev" && currentStepIndex - 1 < 0) {
+                console.log('Reached first step, cannot go prev');
+                return;
+            }
+            
+            if (currentStepIndex === 0) {
+                let nextStep = 2;
+                if (window.dogRadio && window.dogRadio.checked) {
+                    nextStep = 1;
+                }
+                console.log(`Step 0: going to step ${nextStep}`);
+                toStep(currentStepIndex, nextStep, direction);
+            } else if (currentStepIndex === 2 && direction === "prev") {
+                let prevStep = 0;
+                if (window.dogRadio && window.dogRadio.checked) {
+                    prevStep = 1;
+                }
+                console.log(`Step 2: going to step ${prevStep}`);
+                toStep(currentStepIndex, prevStep, direction);
+            } else if (direction === "next") {
+                console.log(`General next: going from ${currentStepIndex} to ${currentStepIndex + 1}`);
+                toStep(currentStepIndex, currentStepIndex + 1, direction);
+            } else if (direction === "prev") {
+                console.log(`General prev: going from ${currentStepIndex} to ${currentStepIndex - 1}`);
+                toStep(currentStepIndex, currentStepIndex - 1, direction);
+            } else {
+                console.log('No navigation action taken');
+                return;
+            }
+        }
+        
+        // تابع checkAndFixStepState ساده
+        function checkAndFixStepState() {
+            const currentStep = document.querySelector('.step.current');
+            if (currentStep) {
+                return currentStep;
+            }
+            
+            // اگر هیچ مرحله‌ای فعلی نباشد، اولین مرحله را تنظیم کن
+            if (steps.length > 0) {
+                steps[0].classList.add('current');
+                currentStepIndex = 0;
+                return steps[0];
+            }
+            
+            return null;
+        }
+        
+        // تابع‌های ناوبری
+        function goNext() {
+            console.log('Next button clicked');
+            const currentStep = checkAndFixStepState();
+            if (!currentStep) {
+                console.error("No steps found at all");
+                return;
+            }
+            const navDirection = "next";
+            const stepIndex = parseInt(currentStep.dataset.step);
+            
+            console.log('Navigating from step', stepIndex, 'to next step');
+            stepNavigationHandle(currentStep, stepIndex, navDirection);
+        }
+        
+        function goPrev() {
+            console.log('Prev button clicked');
+            const currentStep = checkAndFixStepState();
+            if (!currentStep) {
+                console.error("No steps found at all");
+                return;
+            }
+            const navDirection = "prev";
+            const stepIndex = parseInt(currentStep.dataset.step);
+            
+            console.log('Navigating from step', stepIndex, 'to previous step');
+            stepNavigationHandle(currentStep, stepIndex, navDirection);
+        }
+        
+        // به‌روزرسانی وضعیت
+        function updateStatus() {
+            const currentStep = document.querySelector('.step.current');
+            const stepIndex = currentStep ? parseInt(currentStep.dataset.step) : 0;
+            
+            document.getElementById('status').textContent = `وضعیت: در مرحله ${stepIndex}`;
+            document.getElementById('current-step').textContent = `مرحله فعلی: ${stepIndex}`;
+            document.getElementById('step-count').textContent = `تعداد مراحل: ${steps.length}`;
+            document.getElementById('can-go-next').textContent = `می‌توان به مرحله بعد رفت: ${stepIndex < steps.length - 1}`;
+            document.getElementById('can-go-prev').textContent = `می‌توان به مرحله قبل رفت: ${stepIndex > 0}`;
+            
+            // به‌روزرسانی وضعیت دکمه‌ها
+            prevBtn.disabled = stepIndex === 0;
+            nextBtn.disabled = stepIndex === steps.length - 1;
+        }
+        
+        // به‌روزرسانی اولیه
+        updateStatus();
+        
+        // به‌روزرسانی هر 2 ثانیه
+        setInterval(updateStatus, 2000);
+    </script>
+</body>
+</html> 

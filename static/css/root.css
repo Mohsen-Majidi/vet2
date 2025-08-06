@@ -1,0 +1,237 @@
+@font-face {
+  font-family: dana;
+  font-style: normal;
+  font-weight: 10;
+  font-display: swap;
+  src: url("../fonts/dana/woff2/DanaFaNum-Hairline.woff2") format("woff2"),
+    /* FF39+,Chrome36+, Opera24+*/ url("../fonts/dana/woff/Dana-Hairline.woff")
+      format("woff"); /* FF3.6+, IE9, Chrome6+, Saf5.1+*/
+}
+@font-face {
+  font-family: dana;
+  font-style: normal;
+  font-weight: 100;
+  font-display: swap;
+  src: url("../fonts/dana/woff2/DanaFaNum-Thin.woff2") format("woff2"),
+    /* FF39+,Chrome36+, Opera24+*/ url("../fonts/dana/woff/DanaFaNum-Thin.woff")
+      format("woff"); /* FF3.6+, IE9, Chrome6+, Saf5.1+*/
+}
+@font-face {
+  font-family: dana;
+  font-style: normal;
+  font-weight: 200;
+  font-display: swap;
+  src: url("../fonts/dana/woff2/DanaFaNum-UltraLight.woff2") format("woff2"),
+    /* FF39+,Chrome36+, Opera24+*/
+      url("../fonts/dana/woff/DanaFaNum-UltraLight.woff") format("woff"); /* FF3.6+, IE9, Chrome6+, Saf5.1+*/
+}
+@font-face {
+  font-family: dana;
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("../fonts/dana/woff2/DanaFaNum-Light.woff2") format("woff2"),
+    /* FF39+,Chrome36+, Opera24+*/
+      url("../fonts/dana/woff/DanaFaNum-Light.woff") format("woff"); /* FF3.6+, IE9, Chrome6+, Saf5.1+*/
+}
+@font-face {
+  font-family: dana;
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("../fonts/dana/woff2/DanaFaNum-Medium.woff2") format("woff2"),
+    /* FF39+,Chrome36+, Opera24+*/
+      url("../fonts/dana/woff/DanaFaNum-Medium.woff") format("woff"); /* FF3.6+, IE9, Chrome6+, Saf5.1+*/
+}
+@font-face {
+  font-family: dana;
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("../fonts/dana/woff2/DanaFaNum-DemiBold.woff2") format("woff2"),
+    /* FF39+,Chrome36+, Opera24+*/
+      url("../fonts/dana/woff/DanaFaNum-DemiBold.woff") format("woff"); /* FF3.6+, IE9, Chrome6+, Saf5.1+*/
+}
+@font-face {
+  font-family: dana;
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url("../fonts/dana/woff2/DanaFaNum-ExtraBold.woff2") format("woff2"),
+    /* FF39+,Chrome36+, Opera24+*/
+      url("../fonts/dana/woff/DanaFaNum-ExtraBold.woff") format("woff"); /* FF3.6+, IE9, Chrome6+, Saf5.1+*/
+}
+@font-face {
+  font-family: dana;
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+  src: url("../fonts/dana/woff2/DanaFaNum-Black.woff2") format("woff2"),
+    /* FF39+,Chrome36+, Opera24+*/
+      url("../fonts/dana/woff/DanaFaNum-Black.woff") format("woff"); /* FF3.6+, IE9, Chrome6+, Saf5.1+*/
+}
+@font-face {
+  font-family: dana;
+  font-style: normal;
+  font-weight: 930;
+  font-display: swap;
+  src: url("../fonts/dana/woff2/DanaFaNum-ExtraBlack.woff2") format("woff2"),
+    /* FF39+,Chrome36+, Opera24+*/
+      url("../fonts/dana/woff/DanaFaNum-ExtraBlack.woff") format("woff"); /* FF3.6+, IE9, Chrome6+, Saf5.1+*/
+}
+@font-face {
+  font-family: dana;
+  font-style: normal;
+  font-weight: 960;
+  font-display: swap;
+  src: url("../fonts/dana/woff2/DanaFaNum-Heavy.woff2") format("woff2"),
+    /* FF39+,Chrome36+, Opera24+*/
+      url("../fonts/dana/woff/DanaFaNum-Heavy.woff") format("woff"); /* FF3.6+, IE9, Chrome6+, Saf5.1+*/
+}
+@font-face {
+  font-family: dana;
+  font-style: normal;
+  font-weight: 990;
+  font-display: swap;
+  src: url("../fonts/dana/woff2/DanaFaNum-Fat.woff2") format("woff2"),
+    /* FF39+,Chrome36+, Opera24+*/ url("../fonts/dana/woff/DanaFaNum-Fat.woff")
+      format("woff"); /* FF3.6+, IE9, Chrome6+, Saf5.1+*/
+}
+@font-face {
+  font-family: dana;
+  font-style: normal;
+  font-weight: bold;
+  font-display: swap;
+  src: url("../fonts/dana/woff2/DanaFaNum-Bold.woff2") format("woff2"),
+    /* FF39+,Chrome36+, Opera24+*/ url("../fonts/dana/woff/DanaFaNum-Bold.woff")
+      format("woff"); /* FF3.6+, IE9, Chrome6+, Saf5.1+*/
+}
+@font-face {
+  font-family: dana;
+  font-style: normal;
+  font-weight: normal;
+  font-display: swap;
+  src: url("../fonts/dana/woff2/DanaFaNum-Regular.woff2") format("woff2"),
+    /* FF39+,Chrome36+, Opera24+*/
+      url("../fonts/dana/woff/DanaFaNum-Regular.woff") format("woff"); /* FF3.6+, IE9, Chrome6+, Saf5.1+*/
+}
+:root {
+  --primary: #0066ff;
+  --secondary: #ed6234;
+  --blck: #424242;
+  --gray: #adadad;
+}
+* {
+  margin: 0;
+  padding: 0;
+  direction: rtl;
+  box-sizing: border-box;
+  font-family: "dana", sans-serif;
+  font-weight: normal;
+}
+html {
+  scroll-behavior: smooth;
+  /* scrollbar-gutter: stable; */
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: bold;
+  line-height: 1.4;
+}
+p {
+  color: var(--blck);
+  line-height: 2.2;
+}
+a {
+  text-decoration: none;
+  line-height: 2.2;
+}
+div,
+span,
+button,
+a,
+li {
+  line-height: inherit;
+}
+i {
+  font-style: normal;
+}
+/* برای Chrome، Edge و Safari */
+
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  *::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: #fff;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background-color: var(--primary);
+    border-radius: 10px;
+    border: 3px solid #fff;
+  }
+}
+
+/* برای Firefox */
+@-moz-document url-prefix() {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary) #fff;
+  }
+}
+
+::selection {
+  background: var(--primary);
+  color: #fff;
+}
+
+/* Hide number arrows */
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+button {
+  border: none;
+  outline: none;
+  background: none;
+  cursor: pointer;
+}
+/* Hide scrollbar for Chrome, Safari and Opera */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+/* For Header */
+.sf-with-ul span {
+  font-weight: bold !important;
+}
+.sub-menu a {
+  line-height: 1 !important;
+}
+.sub-menu span {
+  line-height: 1 !important;
+}
+body {
+  text-wrap: initial !important;
+}
+

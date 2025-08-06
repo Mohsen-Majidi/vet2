@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تست ناوبری لاگین</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .step {
+            padding: 15px;
+            margin: 10px 0;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            display: none;
+        }
+        .step.current {
+            display: block;
+            border-color: #3498db;
+            background-color: #f8f9ff;
+        }
+        .step-20 {
+            background-color: #fff3cd;
+            border-color: #ffc107;
+        }
+        .step-6 {
+            background-color: #d1ecf1;
+            border-color: #17a2b8;
+        }
+        .step-7 {
+            background-color: #d4edda;
+            border-color: #28a745;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            background-color: #e9ecef;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>تست ناوبری بعد از لاگین</h1>
+        
+        <div class="status" id="status">
+            وضعیت: در مرحله 20 (لاگین)
+        </div>
+        
+        <div class="step step-20 current" data-step="20">
+            <h3>مرحله 20 - لاگین</h3>
+            <p>این مرحله لاگین است. بعد از لاگین موفق باید به مرحله 6 برویم.</p>
+            <button onclick="simulateLogin()">شبیه‌سازی لاگین موفق</button>
+        </div>
+        
+        <div class="step step-6" data-step="6">
+            <h3>مرحله 6 - اطلاعات کاربر</h3>
+            <p>این مرحله اطلاعات کاربر است که بعد از لاگین نمایش داده می‌شود.</p>
+            <input type="text" placeholder="نام و نام خانوادگی" />
+            <input type="text" placeholder="نام پت" />
+        </div>
+        
+        <div class="step step-7" data-step="7">
+            <h3>مرحله 7 - اطلاعات اضافی</h3>
+            <p>این مرحله برای کاربران مهمان است.</p>
+        </div>
+        
+        <div class="status" id="debug">
+            <strong>اطلاعات دیباگ:</strong><br>
+            <span id="current-step">مرحله فعلی: 20</span><br>
+            <span id="step-count">تعداد مراحل: 3</span>
+        </div>
+    </div>
+
+    <script>
+        // شبیه‌سازی تابع navigateAfterLogin
+        window.navigateAfterLogin = function() {
+            console.log('=== NAVIGATE AFTER LOGIN ===');
+            
+            const currentStep = document.querySelector('.step.current');
+            if (!currentStep) {
+                console.error('No current step found in navigateAfterLogin');
+                return;
+            }
+
+            const step = currentStep.dataset.step;
+            console.log('Current step in navigateAfterLogin:', step);
+            
+            if (step === '20') {
+                console.log('Digits auth succeeded at step20, going to step6');
+                // قبل از انتقال، مطمئن شو که مرحله 6 وجود دارد
+                const step6Element = document.querySelector('.step[data-step="6"]');
+                if (step6Element) {
+                    console.log('Step 6 found, navigating...');
+                    
+                    // حذف کلاس current از تمام مراحل
+                    document.querySelectorAll('.step').forEach(s => {
+                        s.classList.remove('current');
+                    });
+                    
+                    // تنظیم مرحله 6 به عنوان فعلی
+                    step6Element.classList.add('current');
+                    
+                    // به‌روزرسانی status
+                    document.getElementById('status').textContent = 'وضعیت: در مرحله 6 (بعد از لاگین)';
+                    document.getElementById('current-step').textContent = 'مرحله فعلی: 6';
+                    
+                    console.log('Successfully navigated to step 6');
+                } else {
+                    console.error('Step 6 not found, cannot navigate');
+                }
+            }
+            
+            console.log('=== END NAVIGATE AFTER LOGIN ===');
+        };
+
+        // شبیه‌سازی لاگین موفق
+        function simulateLogin() {
+            console.log('Simulating successful login...');
+            
+            // ارسال event شبیه‌سازی
+            const loginEvent = new CustomEvent('digits_login_success', {
+                detail: { user_id: 123, phone: '09123456789' }
+            });
+            document.dispatchEvent(loginEvent);
+            
+            // فراخوانی تابع navigateAfterLogin
+            setTimeout(function() {
+                window.navigateAfterLogin();
+            }, 1000);
+        }
+
+        // Event listener برای digits_login_success
+        document.addEventListener('digits_login_success', function(event) {
+            console.log('digits_login_success event received:', event.detail);
+            
+            // حذف مرحله لاگین
+            const loginStep = document.querySelector('.step-20');
+            if (loginStep) {
+                loginStep.parentNode.removeChild(loginStep);
+                console.log('Login step removed from DOM');
+            }
+        });
+
+        // به‌روزرسانی اطلاعات دیباگ
+        function updateDebugInfo() {
+            const currentStep = document.querySelector('.step.current');
+            const stepCount = document.querySelectorAll('.step').length;
+            
+            document.getElementById('current-step').textContent = 
+                `مرحله فعلی: ${currentStep ? currentStep.dataset.step : 'هیچ'}`;
+            document.getElementById('step-count').textContent = 
+                `تعداد مراحل: ${stepCount}`;
+        }
+
+        // به‌روزرسانی اولیه
+        updateDebugInfo();
+        
+        // به‌روزرسانی هر 2 ثانیه
+        setInterval(updateDebugInfo, 2000);
+    </script>
+</body>
+</html> 

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تست یکپارچه‌سازی آدرس</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+        button { padding: 10px 20px; margin: 5px; }
+        input, textarea { width: 100%; padding: 8px; margin: 5px 0; }
+    </style>
+</head>
+<body>
+    <h1>تست یکپارچه‌سازی آدرس</h1>
+    
+    <div class="test-section">
+        <h3>1. تست تابع vosClearUserData</h3>
+        <button onclick="testClearUserData()">پاک کردن داده‌های کاربر</button>
+        <div id="clear-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>2. تست تابع handleAddressSave</h3>
+        <label>نام آدرس:</label>
+        <input type="text" id="test-address-name" value="خانه" placeholder="نام آدرس">
+        
+        <label>استان:</label>
+        <input type="text" id="test-address-province" value="تهران" placeholder="استان">
+        
+        <label>شهر:</label>
+        <input type="text" id="test-address-city" value="تهران" placeholder="شهر">
+        
+        <label>جزئیات آدرس:</label>
+        <textarea id="test-address-dl" rows="3" placeholder="جزئیات آدرس">خیابان آزادی، پلاک 123</textarea>
+        
+        <label>عرض جغرافیایی:</label>
+        <input type="text" id="test-vos-lat" value="35.724" placeholder="عرض جغرافیایی">
+        
+        <label>طول جغرافیایی:</label>
+        <input type="text" id="test-vos-lng" value="51.39" placeholder="طول جغرافیایی">
+        
+        <button onclick="testHandleAddressSave()">تست ذخیره آدرس</button>
+        <div id="save-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>3. تست تابع vosFetchUserAddresses</h3>
+        <button onclick="testFetchAddresses()">دریافت لیست آدرس‌ها</button>
+        <div id="fetch-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>4. تست تابع vosHandleAddressNext</h3>
+        <button onclick="testHandleAddressNext()">تست vosHandleAddressNext</button>
+        <div id="next-result"></div>
+    </div>
+
+    <script>
+        // Mock VOS object for testing
+        window.VOS = {
+            ajaxurl: '/wp-admin/admin-ajax.php',
+            nonce: 'test_nonce'
+        };
+
+        // Mock window.vosUserData
+        window.vosUserData = {
+            user_id: null,
+            address_name: null,
+            address_id: null,
+            addresses: {}
+        };
+
+        // Mock functions for testing
+        function testClearUserData() {
+            try {
+                if (typeof vosClearUserData === 'function') {
+                    vosClearUserData();
+                    document.getElementById('clear-result').innerHTML = 
+                        '<span class="success">✅ تابع vosClearUserData با موفقیت اجرا شد</span>';
+                } else {
+                    document.getElementById('clear-result').innerHTML = 
+                        '<span class="error">❌ تابع vosClearUserData یافت نشد</span>';
+                }
+            } catch (error) {
+                document.getElementById('clear-result').innerHTML = 
+                    '<span class="error">❌ خطا در اجرای vosClearUserData: ' + error.message + '</span>';
+            }
+        }
+
+        function testHandleAddressSave() {
+            try {
+                // Mock form elements
+                const originalGetElementById = document.getElementById;
+                document.getElementById = function(id) {
+                    if (id === 'address-name') return { value: document.getElementById('test-address-name').value };
+                    if (id === 'address-province') return { value: document.getElementById('test-address-province').value };
+                    if (id === 'address-city') return { value: document.getElementById('test-address-city').value };
+                    if (id === 'address-dl') return { value: document.getElementById('test-address-dl').value };
+                    if (id === 'vos-lat') return { value: document.getElementById('test-vos-lat').value };
+                    if (id === 'vos-lng') return { value: document.getElementById('test-vos-lng').value };
+                    return originalGetElementById.call(document, id);
+                };
+
+                if (typeof handleAddressSave === 'function') {
+                    handleAddressSave()
+                        .then(result => {
+                            document.getElementById('save-result').innerHTML = 
+                                '<span class="success">✅ آدرس با موفقیت ذخیره شد: ' + JSON.stringify(result) + '</span>';
+                        })
+                        .catch(error => {
+                            document.getElementById('save-result').innerHTML = 
+                                '<span class="error">❌ خطا در ذخیره آدرس: ' + error + '</span>';
+                        });
+                } else {
+                    document.getElementById('save-result').innerHTML = 
+                        '<span class="error">❌ تابع handleAddressSave یافت نشد</span>';
+                }
+
+                // Restore original function
+                document.getElementById = originalGetElementById;
+            } catch (error) {
+                document.getElementById('save-result').innerHTML = 
+                    '<span class="error">❌ خطا در اجرای handleAddressSave: ' + error.message + '</span>';
+            }
+        }
+
+        function testFetchAddresses() {
+            try {
+                if (typeof vosFetchUserAddresses === 'function') {
+                    vosFetchUserAddresses({
+                        success: (list, dict) => {
+                            document.getElementById('fetch-result').innerHTML = 
+                                '<span class="success">✅ آدرس‌ها با موفقیت دریافت شدند: ' + 
+                                JSON.stringify({ list, dict }) + '</span>';
+                        },
+                        error: (error) => {
+                            document.getElementById('fetch-result').innerHTML = 
+                                '<span class="error">❌ خطا در دریافت آدرس‌ها: ' + error + '</span>';
+                        }
+                    });
+                } else {
+                    document.getElementById('fetch-result').innerHTML = 
+                        '<span class="error">❌ تابع vosFetchUserAddresses یافت نشد</span>';
+                }
+            } catch (error) {
+                document.getElementById('fetch-result').innerHTML = 
+                    '<span class="error">❌ خطا در اجرای vosFetchUserAddresses: ' + error.message + '</span>';
+            }
+        }
+
+        function testHandleAddressNext() {
+            try {
+                if (typeof window.vosHandleAddressNext === 'function') {
+                    // Mock context object
+                    const mockContext = {
+                        currentStepIndex: 7,
+                        direction: 'next',
+                        toStep: (from, to, dir) => console.log('toStep called:', from, to, dir),
+                        setAddressFields: (props) => console.log('setAddressFields called:', props),
+                        main: { dataset: { stepState: 'fields' } },
+                        disableButtonCan: () => console.log('disableButtonCan called')
+                    };
+
+                    window.vosHandleAddressNext(mockContext);
+                    document.getElementById('next-result').innerHTML = 
+                        '<span class="success">✅ تابع vosHandleAddressNext با موفقیت اجرا شد</span>';
+                } else {
+                    document.getElementById('next-result').innerHTML = 
+                        '<span class="error">❌ تابع vosHandleAddressNext یافت نشد</span>';
+                }
+            } catch (error) {
+                document.getElementById('next-result').innerHTML = 
+                    '<span class="error">❌ خطا در اجرای vosHandleAddressNext: ' + error.message + '</span>';
+            }
+        }
+
+        // Load the actual functions from the project
+        function loadProjectScripts() {
+            const scripts = [
+                'assets/js/custom.js',
+                'assets/js/main.js'
+            ];
+
+            scripts.forEach(script => {
+                const scriptElement = document.createElement('script');
+                scriptElement.src = script;
+                scriptElement.onerror = () => {
+                    console.warn('Could not load:', script);
+                };
+                document.head.appendChild(scriptElement);
+            });
+        }
+
+        // Load scripts when page loads
+        window.addEventListener('load', loadProjectScripts);
+    </script>
+</body>
+</html> 
