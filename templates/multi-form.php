@@ -955,7 +955,7 @@ require_once __DIR__ . '/jdf.php';
                                         document.addEventListener('digits_login_success', () => {
                                             const box = document.getElementById('dm-content');
                                             if (box) box.remove();        // یا box.style.display = 'none';
-                                            
+
                                             // به جای reload، از تابع navigateAfterLogin استفاده کنیم
                                             if (typeof window.navigateAfterLogin === 'function') {
                                                 window.navigateAfterLogin();
@@ -967,10 +967,10 @@ require_once __DIR__ . '/jdf.php';
                                                     document.querySelectorAll('.form--step').forEach(s => {
                                                         s.classList.remove('current');
                                                     });
-                                                    
+
                                                     // تنظیم مرحله 6 به عنوان فعلی
                                                     step6Element.classList.add('current');
-                                                    
+
                                                     // به‌روزرسانی main dataset
                                                     const main = document.querySelector('main.container');
                                                     if (main) {
@@ -998,7 +998,7 @@ require_once __DIR__ . '/jdf.php';
 
                             const loginBox = document.getElementById('dm-content');
                             if (loginBox) loginBox.remove();
-                            
+
                             // به‌روزرسانی main dataset
                             const main = document.querySelector('main.container');
                             if (main) {

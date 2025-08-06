@@ -63,6 +63,19 @@ const checkAndFixStepState = () => {
   const currentStep = document.querySelector('.form--step.current');
   const allSteps = document.querySelectorAll('.form--step');
 
+  const resolveStep6 = () => {
+    let step6El = document.querySelector('.form--step[data-step="6"]');
+    if (!step6El) {
+      const step7El = document.querySelector('.form--step[data-step="7"]');
+      if (step7El) {
+        step7El.dataset.step = '6';
+        step7El.className = step7El.className.replace(/step-7/g, 'step-6');
+        step6El = step7El;
+      }
+    }
+    return step6El;
+  };
+
   console.log('Checking step state:', {
     currentStep: currentStep ? currentStep.dataset.step : 'none',
     totalSteps: allSteps.length,
@@ -70,6 +83,35 @@ const checkAndFixStepState = () => {
     lastLoginStep: lastLoginStep,
     shouldNavigateToStep6: shouldNavigateToStep6
   });
+
+  // Check if URL contains a step parameter and navigate accordingly
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlStep = urlParams.get('step');
+  if (urlStep) {
+    const urlStepElement = document.querySelector(`.form--step[data-step="${urlStep}"]`);
+    if (urlStepElement) {
+      // Remove current class from all steps
+      document.querySelectorAll('.form--step').forEach(s => {
+        s.classList.remove('current');
+      });
+
+      // Set the URL-specified step as current
+      urlStepElement.classList.add('current');
+
+      // Update main dataset
+      if (main) {
+        main.dataset.step = urlStep;
+        main.dataset.stepState = "def";
+      }
+
+      // Remove step param from URL without reloading
+      urlParams.delete('step');
+      const newUrl = `${window.location.pathname}${urlParams.toString() ? '?' + urlParams.toString() : ''}${window.location.hash}`;
+      window.history.replaceState({}, '', newUrl);
+
+      return urlStepElement;
+    }
+  }
 
   // بررسی sessionStorage برای مرحله حفظ شده
   const shouldNavigate = sessionStorage.getItem('shouldNavigateToStep6');
@@ -81,7 +123,8 @@ const checkAndFixStepState = () => {
 
   // اگر باید به مرحله 6 برویم
   if (shouldNavigateToStep6) {
-    const step6Element = document.querySelector('.form--step[data-step="6"]');
+    // const step6Element = document.querySelector('.form--step[data-step="6"]');
+    const step6Element = resolveStep6();
     if (step6Element) {
       console.log('Navigating to step 6 after reload');
       
@@ -120,7 +163,8 @@ const checkAndFixStepState = () => {
   if (allSteps.length > 0) {
     // اگر بعد از لاگین هستیم و مرحله 6 وجود دارد، آن را تنظیم کن
     if (window.vosUserData && window.vosUserData.user_id) {
-      const step6Element = document.querySelector('.form--step[data-step="6"]');
+      // const step6Element = document.querySelector('.form--step[data-step="6"]');
+      const step6Element = resolveStep6();
       if (step6Element) {
         console.log('User is logged in, setting step 6 as current');
         step6Element.classList.add('current');

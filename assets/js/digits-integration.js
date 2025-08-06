@@ -377,6 +377,10 @@
         if (currentStep && currentStep.dataset.step === '20' && typeof window.preserveStepBeforeReload === 'function') {
             window.preserveStepBeforeReload();
         }
+        // Ensure step 6 is restored after potential reload by adding it to URL
+        const url = new URL(window.location.href);
+        url.searchParams.set('step', '6');
+        window.history.replaceState({}, '', url);
 
         // ارسال event برای اطلاع سایر بخش‌ها
         const loginEvent = new CustomEvent('digits_login_success', {
