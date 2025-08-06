@@ -2072,3 +2072,125 @@ function vos_get_addresses() {
 
     wp_send_json_success( [ 'addresses' => $rows ] );
 }
+
+add_action('wp_ajax_nopriv_vos_digits_login', 'vos_digits_login');
+add_action('wp_ajax_vos_digits_login', 'vos_digits_login');
+function vos_digits_login() {
+    header('Content-Type: application/json; charset=utf-8');
+
+    $nonce = $_POST['_ajax_nonce'] ?? '';
+    if ( ! check_ajax_referer('vos_phone_nonce', '_ajax_nonce', false) ) {
+        wp_send_json_error(['message' => 'invalid_nonce'], 403);
+    }
+
+    $raw    = vos_fa_to_en((string)($_POST['mobile'] ?? ''));
+    $mobile = preg_replace('/\D+/', '', $raw);
+    if ( ! preg_match('/^09\d{9}$/', $mobile) ) {
+        wp_send_json_error(['message' => 'invalid_mobile'], 400);
+    }
+
+    $otp = isset($_POST['otp']) ? preg_replace('/\D+/', '', (string)$_POST['otp']) : '';
+
+    if ($otp === '') {
+        $sent = vos_send_digits_otp($mobile);
+        if ($sent === true) {
+            wp_send_json_success(['message' => 'کد تایید ارسال شد.']);
+        } elseif (is_wp_error($sent)) {
+            wp_send_json_error(['message' => $sent->get_error_message()], 500);
+        } else {
+            wp_send_json_error(['message' => 'خطا در ارسال کد تایید.'], 500);
+        }
+    }
+
+    $verified = vos_verify_digits_otp($mobile, $otp);
+    if (is_wp_error($verified) || ! $verified) {
+        wp_send_json_error(['message' => 'کد تایید اشتباه است.'], 400);
+    }
+
+    $user = get_user_by('login', $mobile);
+    if ( ! $user ) {
+        $user_id = vos_create_user_from_mobile($mobile);
+        if ( ! $user_id ) {
+            wp_send_json_error(['message' => 'user_not_found'], 500);
+        }
+    } else {
+        $user_id = $user->ID;
+    }
+
+    wp_set_current_user($user_id);
+    wp_set_auth_cookie($user_id);
+
+    wp_send_json_success([
+        'message'   => 'ورود موفقیت‌آمیز بود!',
+        'user_id'   => $user_id,
+        'phone'     => $mobile,
+        'logged_in' => true,
+    ]);
+}
+
+function vos_send_digits_otp($mobile) {
+    if (class_exists('Digits')) {
+        try {
+            $digits = Digits::get_instance();
+            $resp   = $digits->send_otp(['mobile' => $mobile]);
+            if ( ! is_wp_error($resp) && $resp !== false) {
+                return true;
+            }
+            return is_wp_error($resp) ? $resp : new WP_Error('digits_send_failed', 'Digits send otp failed');
+        } catch (Exception $e) {
+            return new WP_Error('digits_exception', $e->getMessage());
+        }
+    }
+
+    if (function_exists('digit_send_otp')) {
+        $resp = digit_send_otp('98', $mobile, '', 'sms_otp', '', '');
+        if ( ! is_wp_error($resp) && $resp !== false) {
+            return true;
+        }
+        return is_wp_error($resp) ? $resp : new WP_Error('digits_send_failed', 'digit_send_otp failed');
+    }
+
+    return new WP_Error('digits_not_available', 'Digits not configured');
+}
+
+function vos_verify_digits_otp($mobile, $otp) {
+    if (class_exists('Digits')) {
+        try {
+            $digits = Digits::get_instance();
+            $verify = $digits->verify_otp([
+                'mobile' => $mobile,
+                'otp'    => $otp,
+            ]);
+            if (is_wp_error($verify) || ! $verify) {
+                return is_wp_error($verify) ? $verify : false;
+            }
+            return true;
+        } catch (Exception $e) {
+            return new WP_Error('digits_exception', $e->getMessage());
+        }
+    }
+
+    if (function_exists('digit_verify_otp')) {
+        $verify = digit_verify_otp($mobile, $otp);
+        return $verify;
+    }
+
+    return new WP_Error('digits_not_available', 'Digits not configured');
+}
+
+function vos_create_user_from_mobile($mobile) {
+    $existing = get_user_by('login', $mobile);
+    if ($existing) {
+        return $existing->ID;
+    }
+
+    $password = wp_generate_password(12, false);
+    $email    = $mobile . '@example.com';
+    $user_id  = wp_create_user($mobile, $password, $email);
+    if (is_wp_error($user_id)) {
+        return 0;
+    }
+
+    update_user_meta($user_id, 'digits_phone', $mobile);
+    return $user_id;
+}
